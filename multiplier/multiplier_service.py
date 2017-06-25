@@ -1,7 +1,10 @@
 from celery import chord
 
 from celery_config.celery_init import app
+from log_utils import LogFactory
 from multiplier.celery_tasks import MultiplierTask, CombinerTask
+
+log = LogFactory.make_log(__name__)
 
 
 def multiply(first, second):
@@ -14,6 +17,7 @@ def multiply(first, second):
     tasks = [MultiplierTask().s(i, first[i], second)
              for i in range(len(first))]
     combiner = chord(tasks)(CombinerTask().s())
+    log.debug("Multiplier task batch has started")
     return combiner.id
 
 
@@ -23,8 +27,9 @@ def job_status(job_id: str):
     :param job_id:
     :return: status of the job
     """
-    result = app.AsyncResult(job_id)
-    return result.state
+    status = app.AsyncResult(job_id).state
+    log.debug("Job status for id {} is {}".format(job_id, status))
+    return status
 
 
 def get_result(job_id: str):
@@ -36,5 +41,9 @@ def get_result(job_id: str):
     async_result = app.AsyncResult(job_id)
     result = None
     if async_result.state == 'SUCCESS':
+        log.debug("Job status for id {} is {}. Returning result"
+                  .format(job_id, async_result.state))
         result = async_result.get()
+    else:
+        log.debug("Job result for id {} is not ready".format(job_id))
     return async_result.status, result

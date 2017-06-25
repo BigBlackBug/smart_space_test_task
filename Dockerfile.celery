@@ -1,0 +1,10 @@
+FROM python:3.5
+
+MAINTAINER Evgeny Shakhmaev
+
+WORKDIR /app
+
+RUN pip install celery
+RUN pip install celery[redis]
+
+COPY ./ .

@@ -1,0 +1,42 @@
+version: '2'
+
+services:
+  # Redis
+  redis:
+    image: redis:2.8.19
+    hostname: redis
+
+  # RabbitMQ
+  rabbit:
+    image: rabbitmq:3.6.0
+    hostname: rabbit
+
+  # Celery worker
+  worker:
+    build:
+      context: ..
+      dockerfile: Dockerfile.celery
+    command: celery -A celery_config.celery_init:app worker
+    environment:
+      - CELERY_BROKER_URL=amqp://rabbit:5672
+      - CELERY_BACKEND_URL=redis://redis:6379/0
+    links:
+      - rabbit
+      - redis
+
+  # Web server
+  multiplier:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    hostname: multiplier
+    command: python main.py
+    environment:
+      - CELERY_BROKER_URL=amqp://rabbit:5672
+      - CELERY_BACKEND_URL=redis://redis:6379/0
+      - SERVER_PORT=8080
+    ports:
+      - "8080:8080"
+    links:
+      - rabbit
+      - redis

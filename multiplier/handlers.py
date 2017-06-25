@@ -1,12 +1,15 @@
 from aiohttp import web
 
-from multiplier import multiplier_service
+from multiplier import multiplier_service, validators
 
 
 async def multiply_matrices(request):
     data = await request.json()
     first = data['first']
     second = data['second']
+
+    validators.validate_input_matrices(first, second)
+
     job_id = multiplier_service.multiply(first, second)
     return web.json_response({
         "job_id": str(job_id)

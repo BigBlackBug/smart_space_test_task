@@ -11,10 +11,10 @@ def multiply(first, second):
     :param second: second matrix
     :return: id of the job
     """
-    header = [MultiplierTask().s(i, first[i], second)
-              for i in range(len(first))]
-    chord_task = chord(header)(CombinerTask().s())
-    return chord_task.id
+    tasks = [MultiplierTask().s(i, first[i], second)
+             for i in range(len(first))]
+    combiner = chord(tasks)(CombinerTask().s())
+    return combiner.id
 
 
 def job_status(job_id: str):

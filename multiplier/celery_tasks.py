@@ -1,6 +1,6 @@
 from celery import Task
 
-from multiplier.matrix import Matrix
+from multiplier import utils
 
 
 class MultiplierTask(Task):
@@ -14,11 +14,11 @@ class MultiplierTask(Task):
         :param second_matrix:
         :return: tuple (i:int, row) where row is a product of multiplication
         """
-        height = len(second_matrix)
-        width = len(second_matrix[0])
-        row = [0] * width
-        for j in range(0, width):
-            for k in range(0, height):
+        rows = len(second_matrix)
+        cols = len(second_matrix[0])
+        row = [0] * cols
+        for j in range(0, cols):
+            for k in range(0, rows):
                 row[j] += horizontal_vector[k] * second_matrix[k][j]
         return i, row
 
@@ -34,9 +34,9 @@ class CombinerTask(Task):
         :return:
         """
         # length of the first row
-        width = len(results[0][1])
-        matrix = Matrix.make_matrix(width, len(results), lambda: 0)
+        cols = len(results[0][1])
+        matrix = utils.make_matrix(len(results), cols)
         # building the matrix row by row
         for i, row in results:
             matrix[i] = row
-        return matrix.values
+        return matrix

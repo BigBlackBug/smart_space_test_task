@@ -6,7 +6,7 @@ import constants
 
 class LogFactory:
     @staticmethod
-    def make_log(name):
+    def make_log(name, file_name='main.log'):
         log = logging.getLogger(name)
         log.setLevel(logging.DEBUG)
 
@@ -23,7 +23,7 @@ class LogFactory:
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
 
-        file = logging.FileHandler(os.path.join(log_dir, 'main.log'))
+        file = logging.FileHandler(os.path.join(log_dir, file_name))
         file.setLevel(logging.DEBUG)
         file.setFormatter(f)
         log.addHandler(file)

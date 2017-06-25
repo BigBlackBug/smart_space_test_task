@@ -20,5 +20,8 @@ app.conf.task_default_routing_key = DEFAULT_QUEUE
 app.tasks.register(MultiplierTask)
 app.tasks.register(CombinerTask)
 
+app.conf.update(
+    task_track_started=True
+)
 if __name__ == '__main__':
     app.start()

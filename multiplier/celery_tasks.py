@@ -38,7 +38,7 @@ class CombinerTask(Task):
         """
         # TODO a huge workaround
         # celery.chord ignores the outer list if the number
-        # of rows of the result is 0
+        # of rows of the result is 1
         if len(results) == 2:
             if type(results[0]) == int and type(results[1] == list):
                 results = [results]

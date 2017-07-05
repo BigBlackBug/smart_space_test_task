@@ -1,16 +1,9 @@
 import unittest
 
-from celery import chord
-
-from celery_config.celery_init import app
-# s is a signature
 from multiplier.celery_tasks import MultiplierTask, CombinerTask
 
 
 class TestMyCeleryWorker(unittest.TestCase):
-    def setUp(self):
-        app.conf.update(CELERY_ALWAYS_EAGER=True)
-
     def test_worker(self):
         """
         Testing that multiplication works as expected
@@ -19,8 +12,22 @@ class TestMyCeleryWorker(unittest.TestCase):
         first = [[4, 2, 1], [5, 3, 6], [0, 7, 8]]
         second = [[9, -4], [-1, 2], [0, -2]]
 
-        header = [MultiplierTask().s(i, first[i], second)
+        header = [MultiplierTask().run(i, first[i], second)
                   for i in range(len(first))]
-        chord_task = chord(header)(CombinerTask().s())
+        result = CombinerTask().run(header)
         expected = [[34, -14], [42, -26], [-7, -2]]
-        self.assertEqual(expected, chord_task.get())
+        self.assertEqual(expected, result)
+
+    def test_small_matrix(self):
+        """
+        Testing that multiplication works as expected
+        :return:
+        """
+        first = [[1]]
+        second = [[1], [2], [3]]
+
+        header = [MultiplierTask().run(i, first[i], second)
+                  for i in range(len(first))]
+        result = CombinerTask().run(header)
+        expected = [[1], [2], [3]]
+        self.assertEqual(expected, result)

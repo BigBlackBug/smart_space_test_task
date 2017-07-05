@@ -9,7 +9,5 @@ from web import app
 if __name__ == '__main__':
     application = app.init(routes=routes)
 
-    port = int(os.environ.get("SERVER_PORT"))
-    if len(sys.argv) > 1:
-        port = int(sys.argv[1])
+    port = os.environ.get("SERVER_PORT")
     web.run_app(application, port=port)
